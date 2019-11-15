@@ -2,10 +2,6 @@ output "vpc_id" {
   value = "${aws_vpc.production-vpc.id}"
 }
 
-# output "internet_gateway_id" {
-#     value = "${aws_vpc.production-vpc.gateway_id}"
-# }
-
 output "vpc_cidr_block" {
   value = "${aws_vpc.production-vpc.cidr_block}"
 }
