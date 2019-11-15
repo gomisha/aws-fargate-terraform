@@ -91,16 +91,42 @@ resource "aws_route_table_association" "public-route-table-subnet-3-association"
 
 ### ROUTE TABLE ASSOCIATIONS - PRIVATE
 resource "aws_route_table_association" "private-route-table-subnet-1-association" {
-  route_table_id = "${aws_route_table.private-route-table-route-table.id}"
-  subnet_id      = "${aws_subnet.private-subnet-1}"
+  route_table_id = "${aws_route_table.private-route-table.id}"
+  subnet_id      = "${aws_subnet.private-subnet-1.id}"
 }
 
 resource "aws_route_table_association" "private-route-table-subnet-2-association" {
-  route_table_id = "${aws_route_table.private-route-table-route-table.id}"
-  subnet_id      = "${aws_subnet.private-subnet-2}"
+  route_table_id = "${aws_route_table.private-route-table.id}"
+  subnet_id      = "${aws_subnet.private-subnet-2.id}"
 }
 
 resource "aws_route_table_association" "private-route-table-subnet-3-association" {
-  route_table_id = "${aws_route_table.private-route-table-route-table.id}"
-  subnet_id      = "${aws_subnet.private-subnet-3}"
+  route_table_id = "${aws_route_table.private-route-table.id}"
+  subnet_id      = "${aws_subnet.private-subnet-3.id}"
+}
+
+
+### ELASTIC IP
+resource "aws_eip" "elastic-ip-for-nat-gateway" {
+  vpc                       = true
+  associate_with_private_ip = "10.0.0.5"
+  tags = {Name="Production-EIP"}
+
+  #depends_on                = ["aws_internet_gateway.gw"]
+}
+
+### NAT GATEWAY
+resource "aws_nat_gateway" "nat-gw" {
+  allocation_id = "${aws_eip.elastic-ip-for-nat-gateway.id}"
+  subnet_id     = "${aws_subnet.public-subnet-1.id}"
+  tags          = {Name="Production-NAT-GW"}
+
+  depends_on = ["aws_eip.elastic-ip-for-nat-gateway"]
+}
+
+# associate NAT gateway to private route table to access from private subnet
+resource "aws_route" "nat-gw-route" {
+  route_table_id = "${aws_route_table.private-route-table.id}"
+  nat_gateway_id = "${aws_nat_gateway.nat-gw.id}"
+  destination_cidr_block = "0.0.0.0/0"
 }
