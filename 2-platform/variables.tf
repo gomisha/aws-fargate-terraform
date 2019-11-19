@@ -19,3 +19,7 @@ variable "internet_cidr_blocks" {
   
 }
 
+# variable "ecs_domain_name" {
+  
+# }
+
